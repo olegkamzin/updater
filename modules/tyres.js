@@ -113,8 +113,8 @@ const addProduct = async (el) => {
 		if (productsList.has(id)) {
 			const productMap = productsList.get(id)
 			if (productMap.price !== Number(price)) {
-				const updateTime = new Date().toLocaleTimeString()
-				console.log('(' + updateTime + ') ' + 'Изменилась цена ' + articul + ' | ' + 'Старая цена: ' + productMap.price + ' Новая цена: ' + Number(price))
+				// const updateTime = new Date().toLocaleTimeString()
+				// console.log('(' + updateTime + ') ' + 'Изменилась цена ' + articul + ' | ' + 'Старая цена: ' + productMap.price + ' Новая цена: ' + Number(price))
 				await Product.findByIdAndUpdate(productMap.product, {price: Number(price)}, {new: true}).then(el => productsList.set(id, {
 					product: productMap.product,
 					quantity: el.quantity,
@@ -122,8 +122,8 @@ const addProduct = async (el) => {
 				})).catch(error => console.log(error))
 			}
 			if (productMap.quantity !== Number(count_local)) {
-				const updateTime = new Date().toLocaleTimeString()
-				console.log('(' + updateTime + ') ' + 'Изменилось кол-во ' + articul + ' | ' + 'Было: ' + productMap.quantity + ' Стало: ' + Number(count_local))
+				// const updateTime = new Date().toLocaleTimeString()
+				// console.log('(' + updateTime + ') ' + 'Изменилось кол-во ' + articul + ' | ' + 'Было: ' + productMap.quantity + ' Стало: ' + Number(count_local))
 				await Product.findByIdAndUpdate(productMap.product, {quantity: Number(count_local)}, {new: true}).then(el => productsList.set(id, {
 					product: productMap.product,
 					quantity: el.quantity,
@@ -135,13 +135,12 @@ const addProduct = async (el) => {
 }
 
 const delProduct = async () => {
-	const updateTime = new Date().toLocaleTimeString()
-	console.log(updateTime, '*** Запуск проверки')
+	// const updateTime = new Date().toLocaleTimeString()
+	// console.log(updateTime, '*** Запуск проверки')
 	for (let [key, value] of productsList) {
 		if (!checkProducts.has(key) && value.quantity !== 0 ) {
-			await Product.findByIdAndUpdate(value.product, {'$set': { quantity: 0 } }, { new: true }).then(async res => {
-				console.log(`${key} было ${value.quantity} и стало ${res.quantity}`)
-			})
+			await Product.findByIdAndUpdate(value.product, {'$set': { quantity: 0 } }, { new: true })
+				// .then(async res => console.log(`${key} было ${value.quantity} и стало ${res.quantity}`))
 			return productsList.set(key, { product: value.product, quantity: 0, price: value.price })
 		}
 	}

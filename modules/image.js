@@ -16,18 +16,23 @@ const getModels = async () => {
 
 getModels()
 
-const addModel = async (id) => checkImg.set(id, false)
+const addModel = async (id) => {
+	checkImg.set(id, false)
+	console.log(checkImg)
+}
 
 const getImg = async (id, model) => {
 	if (!checkImg.has(model)) return null
-	if (checkImg.get(model)) return null
-
-	await axios.get(process.env.KOLOBOX_URL + 'catalog/image/' + id, { responseType: 'arraybuffer' }).then(async res => {
+	if (checkImg.get(model)) {
+		return null
+	} else {
 		checkImg.set(model, true)
-		await saveImg(res.data).then(async result => {
-			await Model.findByIdAndUpdate(model, { $set: { img: result } })
-		})
-	}).catch(() => null)
+		await axios.get(process.env.KOLOBOX_URL + 'catalog/image/' + id, {responseType: 'arraybuffer'}).then(async res => {
+			await saveImg(res.data).then(async result => {
+				await Model.findByIdAndUpdate(model, {$set: {img: result}})
+			})
+		}).catch(() => checkImg.set(model, false))
+	}
 }
 
 const saveImg = async (img) => {
