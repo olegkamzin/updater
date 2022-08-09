@@ -3,6 +3,7 @@ import Model from '../models/model.js'
 import Brand from '../models/brand.js'
 import Product from '../models/product.js'
 import Kolobox from '../models/kolobox.js'
+import {addModel, getImg} from './image.js'
 
 const brandsList = new Map()
 const modelsList = new Map()
@@ -52,6 +53,7 @@ const addProduct = async (el) => {
 	let { id, articul, mark, model, tread_width, profile_height, diameter, season, is_studded, runflat, eu_fuel_efficiency, eu_noise_level, eu_grip_on_road, weight, other, load_index, speed_index, price, count_local } = el
 	let noise = ''
 	model = model.replace(/[()-]/g, ' ').replace(/\s+/g, ' ').trim()
+	const modelSlug = slug(model, { lower: true })
 	price = Math.ceil(price * (1 - 5 / 100))
 	if (eu_noise_level >= 75) noise = '3'
 	else if (eu_noise_level >= 61 && eu_noise_level <= 74) noise = '2'
@@ -59,6 +61,7 @@ const addProduct = async (el) => {
 	else if (eu_noise_level === 0) noise = '0'
 
 	checkProducts.set(await id, await count_local)
+
 	// проверка наличия бренда в БД, если нет, добавляем
 	if (!brandsList.has(mark)) {
 		brandsList.set(mark, false)
@@ -67,10 +70,16 @@ const addProduct = async (el) => {
 	// проверка наличия модели в БД, если нет, добавляем
 	if (!modelsList.has(model) && brandsList.get(mark) && model) {
 		modelsList.set(model, false)
-		await Model.create({ name: model, brand: brandsList.get(mark), slug: slug(model, { lower: true }) }).then(modelRes => modelsList.set(modelRes.name, modelRes.id))
+		await Model.create({ name: model, brand: brandsList.get(mark), slug: modelSlug }).then(async modelRes => {
+			modelsList.set(modelRes.name, modelRes.id)
+			await addModel(modelRes.id) // обновление мапы с наличием изображений
+		})
 	}
+
 	// добавляем товары в БД
 	if (brandsList.get(mark) && modelsList.get(model) && model && articul) {
+		// сохранение и добавление изображения
+		await getImg(id, modelsList.get(model))
 		// проверка на отсутствие товара
 		if (!productsList.has(id)) {
 			return await Product.create({
