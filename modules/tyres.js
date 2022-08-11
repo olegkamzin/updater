@@ -3,7 +3,10 @@ import Model from '../models/model.js'
 import Brand from '../models/brand.js'
 import Product from '../models/product.js'
 import Kolobox from '../models/kolobox.js'
-import {addModel, getImg} from './image.js'
+import { addModel, getImg } from './image.js'
+import { Worker } from 'worker_threads'
+
+const worker = new Worker('./worker/app.js')
 
 const brandsList = new Map()
 const modelsList = new Map()
@@ -50,7 +53,7 @@ const start = async () => {
 start()
 
 const addProduct = async (el) => {
-	let { id, articul, mark, model, tread_width, profile_height, diameter, season, is_studded, runflat, eu_fuel_efficiency, eu_noise_level, eu_grip_on_road, weight, other, load_index, speed_index, price, count_local } = el
+	let { id, articul, mark, model, tread_width, profile_height, diameter, season, is_studded, runflat, eu_fuel_efficiency, eu_noise_level, eu_grip_on_road, weight, other, load_index, speed_index, price, count_local, image_url } = el
 	let noise = ''
 	model = model.replace(/[()-]/g, ' ').replace(/\s+/g, ' ').trim()
 	const modelSlug = slug(model, { lower: true })
@@ -65,7 +68,7 @@ const addProduct = async (el) => {
 	// проверка наличия бренда в БД, если нет, добавляем
 	if (!brandsList.has(mark)) {
 		brandsList.set(mark, false)
-		await Brand.create({ name: mark, slug: slug(mark, { lower: true }) }).then(brandRes => brandsList.set(brandRes.name,brandRes.id))
+		await Brand.create({ name: mark, slug: slug(mark, { lower: true }) }).then(brandRes => brandsList.set(brandRes.name, brandRes.id))
 	}
 	// проверка наличия модели в БД, если нет, добавляем
 	if (!modelsList.has(model) && brandsList.get(mark) && model) {
@@ -79,13 +82,13 @@ const addProduct = async (el) => {
 	// добавляем товары в БД
 	if (brandsList.get(mark) && modelsList.get(model) && model && articul) {
 		// сохранение и добавление изображения
-		await getImg(id, modelsList.get(model))
+		await getImg(modelsList.get(model), image_url)
 		// проверка на отсутствие товара
 		if (!productsList.has(id)) {
 			return await Product.create({
 				brand: brandsList.get(mark),
 				model: modelsList.get(model),
-				category: '62e51716ad3b0a457295d846',
+				category: process.env.CATEGORY,
 				quantity: Number(count_local),
 				price: Number(price),
 				weight: Number(weight),
@@ -93,7 +96,7 @@ const addProduct = async (el) => {
 					width: Number(tread_width),
 					height: Number(profile_height),
 					diameter: diameter.toString(),
-					speed_index: speed_index,
+					speed_index,
 					load_index: Number(load_index),
 					thorns: is_studded.toString(),
 					fuel_efficiency: eu_fuel_efficiency.toString(),
@@ -101,7 +104,7 @@ const addProduct = async (el) => {
 					noise,
 					runflat: runflat.toString(),
 					other,
-					season: season.toString(),
+					season: season.toString()
 				}
 			}).then(async productRes => {
 				await Kolobox.create({ product: productRes._id, articul, id }).then(() => {
@@ -113,18 +116,16 @@ const addProduct = async (el) => {
 		if (productsList.has(id)) {
 			const productMap = productsList.get(id)
 			if (productMap.price !== Number(price)) {
-				// const updateTime = new Date().toLocaleTimeString()
-				// console.log('(' + updateTime + ') ' + 'Изменилась цена ' + articul + ' | ' + 'Старая цена: ' + productMap.price + ' Новая цена: ' + Number(price))
-				await Product.findByIdAndUpdate(productMap.product, {price: Number(price)}, {new: true}).then(el => productsList.set(id, {
+				worker.postMessage('Изменилась цена ' + articul + ' | ' + 'Старая цена: ' + productMap.price + ' Новая цена: ' + Number(price))
+				await Product.findByIdAndUpdate(productMap.product, { price: Number(price) }, { new: true }).then(el => productsList.set(id, {
 					product: productMap.product,
 					quantity: el.quantity,
 					price: el.price
 				})).catch(error => console.log(error))
 			}
 			if (productMap.quantity !== Number(count_local)) {
-				// const updateTime = new Date().toLocaleTimeString()
-				// console.log('(' + updateTime + ') ' + 'Изменилось кол-во ' + articul + ' | ' + 'Было: ' + productMap.quantity + ' Стало: ' + Number(count_local))
-				await Product.findByIdAndUpdate(productMap.product, {quantity: Number(count_local)}, {new: true}).then(el => productsList.set(id, {
+				worker.postMessage('Изменилось кол-во ' + articul + ' | ' + 'Было: ' + productMap.quantity + ' Стало: ' + Number(count_local))
+				await Product.findByIdAndUpdate(productMap.product, { quantity: Number(count_local) }, { new: true }).then(el => productsList.set(id, {
 					product: productMap.product,
 					quantity: el.quantity,
 					price: el.price
@@ -135,12 +136,12 @@ const addProduct = async (el) => {
 }
 
 const delProduct = async () => {
-	// const updateTime = new Date().toLocaleTimeString()
-	// console.log(updateTime, '*** Запуск проверки')
-	for (let [key, value] of productsList) {
-		if (!checkProducts.has(key) && value.quantity !== 0 ) {
-			await Product.findByIdAndUpdate(value.product, {'$set': { quantity: 0 } }, { new: true })
-				// .then(async res => console.log(`${key} было ${value.quantity} и стало ${res.quantity}`))
+	const updateTime = new Date().toLocaleTimeString()
+	console.log(updateTime, '*** Запуск проверки')
+	for (const [key, value] of productsList) {
+		if (!checkProducts.has(key) && value.quantity !== 0) {
+			await Product.findByIdAndUpdate(value.product, { $set: { quantity: 0 } }, { new: true })
+				.then(async res => console.log(`${key} было ${value.quantity} и стало ${res.quantity}`))
 			return productsList.set(key, { product: value.product, quantity: 0, price: value.price })
 		}
 	}

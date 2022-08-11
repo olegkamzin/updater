@@ -1,13 +1,14 @@
 import auth from './service/auth.js'
 import getTyres from './service/tyres.js'
 import { addProduct, delProduct } from './modules/tyres.js'
-import TelegramBot from 'node-telegram-bot-api'
+
+// import TelegramBot from 'node-telegram-bot-api'
 
 let page = 0
 let token = ''
 let go = true
 
-const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true })
+// const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true })
 const timer = ms => new Promise(res => setTimeout(res, ms))
 
 const login = async () => {
@@ -16,7 +17,7 @@ const login = async () => {
 	}).catch(error => {
 		// if (error.response.status === 429) return login()
 		console.log('❗️ НЕУЧТЕННАЯ ОШИБКА', error) // предусмотреть аварийную функцию
-		bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
+		// bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
 	})
 }
 
@@ -37,7 +38,7 @@ const tyresUpdater = async () => {
 			if (error.response?.status === 429) return null
 			if (error.response?.status === 401) return login()
 			console.log('❗️ НЕУЧТЕННАЯ ОШИБКА', error) // предусмотреть аварийную функцию
-			bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
+			// bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
 			await timer(60000)
 		})
 		await timer(1100)

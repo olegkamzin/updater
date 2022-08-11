@@ -18,19 +18,18 @@ getModels()
 
 const addModel = async (id) => {
 	checkImg.set(id, false)
-	console.log(checkImg)
 }
 
-const getImg = async (id, model) => {
+const getImg = async (model, url) => {
 	if (!checkImg.has(model)) return null
 	if (checkImg.get(model)) {
 		return null
 	} else {
 		checkImg.set(model, true)
-		await axios.get(process.env.KOLOBOX_URL + 'catalog/image/' + id, {responseType: 'arraybuffer'}).then(async res => {
-			await saveImg(res.data).then(async result => {
-				await Model.findByIdAndUpdate(model, {$set: {img: result}})
-			})
+		await axios.get(url, {responseType: 'arraybuffer'}).then(async res => {
+			// await saveImg(res.data).then(async result => {
+			// 	// await Model.findByIdAndUpdate(model, {$set: {img: result}})
+			// })
 		}).catch(() => checkImg.set(model, false))
 	}
 }
@@ -42,12 +41,12 @@ const saveImg = async (img) => {
 
 	const name = dir + genName(16) + '.webp'
 	for (let i = 0; i < sizes.length; i++) {
-		const sizeDir = '../api/static/' + sizes[i] + '/'
+		const sizeDir = process.env.PATH_IMG + sizes[i] + '/'
 		if (!fs.existsSync(sizeDir)) fs.mkdirSync(sizeDir)
 		const imgDir = sizeDir + dir
 		if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir)
 		await sharp(img)
-			.resize(sizes[i], sizes[i], {fit: 'inside'})
+			.resize(sizes[i], sizes[i], { fit: 'inside' })
 			.toFile(sizeDir + name)
 	}
 	result.push(name)
@@ -59,9 +58,9 @@ const genName = (len) => {
 	let str = ''
 	for (let i = 0; i < len; i++) {
 		const pos = Math.floor(Math.random() * abc.length)
-		str += abc.substring(pos,pos+1)
+		str += abc.substring(pos, pos + 1)
 	}
 	return str
 }
 
-export { getImg, getModels, addModel }
+export { getImg, addModel }
