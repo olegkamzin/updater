@@ -15,6 +15,7 @@
         "no-tabs": "off",
         "no-mixed-spaces-and-tabs": "error",
         "indent": ["error", "tab"],
-        "camelcase":"off"
+        "camelcase": "off",
+        "no-unused-vars": "warn"
     }
 }

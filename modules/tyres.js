@@ -75,7 +75,7 @@ const addProduct = async (el) => {
 		modelsList.set(model, false)
 		await Model.create({ name: model, brand: brandsList.get(mark), slug: modelSlug }).then(async modelRes => {
 			modelsList.set(modelRes.name, modelRes.id)
-			await addModel(modelRes.id) // обновление мапы с наличием изображений
+			await addModel(modelRes.id) // обновление map с наличием изображений
 		})
 	}
 
@@ -112,7 +112,7 @@ const addProduct = async (el) => {
 				}).catch(error => console.log(error))
 			}).catch(error => console.log(error))
 		}
-		// обновление данных в БД и мапе
+		// обновление данных в БД и map
 		if (productsList.has(id)) {
 			const productMap = productsList.get(id)
 			if (productMap.price !== Number(price)) {
