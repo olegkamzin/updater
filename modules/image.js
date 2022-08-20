@@ -26,11 +26,11 @@ const getImg = async (model, url) => {
 		return null
 	} else {
 		checkImg.set(model, true)
-		// await axios.get(url, { responseType: 'arraybuffer' }).then(async res => {
-		// 	await saveImg(res.data).then(async result => {
-		// 		await Model.findByIdAndUpdate(model, { $set: { img: result } })
-		// 	})
-		// }).catch(() => checkImg.set(model, false))
+		await axios.get(url, { responseType: 'arraybuffer' }).then(async res => {
+			await saveImg(res.data).then(async result => {
+				await Model.findByIdAndUpdate(model, { $set: { img: result } })
+			})
+		}).catch(() => checkImg.set(model, false))
 	}
 }
 
