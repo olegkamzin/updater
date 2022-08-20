@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const auth = async () => {
-	let params = new URLSearchParams()
+	const params = new URLSearchParams()
 	params.append('grant_type', 'password')
 	params.append('client_id', process.env.CLIENT_ID)
 	params.append('client_secret', process.env.CLIENT_SECRET)

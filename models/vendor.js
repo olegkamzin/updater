@@ -2,8 +2,7 @@ import db from '../db.js'
 
 const schema = new db.Schema({
 	product: { type: db.Types.ObjectId, ref: 'products', required: true },
-	articul: { type: String },
-	id: { type: Number, unique: true }
+	vendors: { type: Object }
 })
 
-export default db.model('Kolobox', schema)
+export default db.model('Vendor', schema)

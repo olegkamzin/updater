@@ -16,9 +16,10 @@
   "dependencies": {
     "axios": "^0.27.2",
     "dotenv": "^16.0.1",
-    "mongoose": "^6.4.5",
+    "mongoose": "^6.5.2",
     "node-telegram-bot-api": "^0.58.0",
     "sharp": "^0.30.7",
-    "slugify": "^1.6.5"
+    "slugify": "^1.6.5",
+    "ws": "^8.8.1"
   }
 }
