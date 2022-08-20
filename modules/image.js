@@ -2,6 +2,8 @@ import sharp from 'sharp'
 import fs from 'fs'
 import axios from 'axios'
 import Model from '../models/model.js'
+import dotenv from 'dotenv'
+dotenv.config()
 
 const checkImg = new Map()
 
@@ -41,7 +43,7 @@ const saveImg = async (img) => {
 
 	const name = dir + genName(16) + '.webp'
 	for (let i = 0; i < sizes.length; i++) {
-		const sizeDir = process.env.PATH_IMG + sizes[i] + '/'
+		const sizeDir = '../../media/' + sizes[i] + '/'
 		if (!fs.existsSync(sizeDir)) fs.mkdirSync(sizeDir)
 		const imgDir = sizeDir + dir
 		if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir)
