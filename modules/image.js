@@ -40,10 +40,9 @@ const saveImg = async (img) => {
 	const sizes = [200, 400, 800, null]
 	const dir = genName(2) + '/'
 	const result = []
-
 	const name = dir + genName(16) + '.webp'
 	for (let i = 0; i < sizes.length; i++) {
-		const sizeDir = '../../media/' + sizes[i] + '/'
+		const sizeDir = process.env.PATH_IMG + sizes[i] + '/'
 		if (!fs.existsSync(sizeDir)) fs.mkdirSync(sizeDir)
 		const imgDir = sizeDir + dir
 		if (!fs.existsSync(imgDir)) fs.mkdirSync(imgDir)
