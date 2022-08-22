@@ -29,23 +29,26 @@ const tyreModels = async () => {
 
 const tyreProducts = async () => {
 	// формируем мапу с товарами, чтобы не дрочить БД каждый раз
-	await Vendor.find()
+	const productFind = await Vendor
+		.find()
 		.populate({ path: 'product', model: 'Product' })
-		.then(res => {
-			for (const element of Array.from(res)) {
-				productsList.set(element.id, {
-					product: element.product._id,
-					quantity: element.product.quantity,
-					price: element.vendors.kolobox.price
-				})
-			}
+	for (const element of Array.from(productFind)) {
+		productsList.set(element.vendors.kolobox.id, {
+			product: element.product._id,
+			quantity: element.product.quantity,
+			price: element.vendors.kolobox.price
 		})
+	}
 }
 
 const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
+
+	console.log(brandsList)
+	console.log(modelsList)
+	console.log(productsList)
 }
 
 start()
@@ -84,6 +87,7 @@ const addProduct = async (el) => {
 		await getImg(modelsList.get(model), image_url)
 		// проверка на отсутствие товара
 		if (!productsList.has(id)) {
+			console.log(123123)
 			return await Product.create({
 				brand: brandsList.get(mark),
 				model: modelsList.get(model),
