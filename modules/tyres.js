@@ -46,7 +46,6 @@ const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
-	console.log(productsList)
 }
 
 start()
@@ -80,7 +79,7 @@ const addProduct = async (el) => {
 	}
 
 	// добавляем товары в БД
-	if (brandsList.has(mark) && modelsList.has(model) && model && articul) {
+	if (brandsList.get(mark) && modelsList.get(model) && model && articul) {
 		// сохранение и добавление изображения
 		await getImg(modelsList.get(model), image_url)
 		// проверка на отсутствие товара
