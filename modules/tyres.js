@@ -29,7 +29,7 @@ const tyreModels = async () => {
 
 const tyreProducts = async () => {
 	// формируем мапу с товарами, чтобы не дрочить БД каждый раз
-	Vendor.find()
+	await Vendor.find()
 		.populate({ path: 'product', model: 'Product' })
 		.then(res => {
 			for (const element of Array.from(res)) {
@@ -46,6 +46,7 @@ const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
+	console.log(productsList)
 }
 
 start()
@@ -79,7 +80,7 @@ const addProduct = async (el) => {
 	}
 
 	// добавляем товары в БД
-	if (brandsList.get(mark) && modelsList.get(model) && model && articul) {
+	if (brandsList.has(mark) && modelsList.has(model) && model && articul) {
 		// сохранение и добавление изображения
 		await getImg(modelsList.get(model), image_url)
 		// проверка на отсутствие товара
@@ -126,7 +127,7 @@ const addProduct = async (el) => {
 			const productMap = productsList.get(id)
 			if (productMap.price !== Number(price)) {
 				await Product.findByIdAndUpdate(productMap.product, { price: Number(retail_price) }, { new: true }).then(async el => {
-					productsList.set(id, { product: productMap.product, quantity: el.quantity, price: Number(retail_price) })
+					productsList.set(id, { product: productMap.product, quantity: el.quantity, price: Number(price) })
 					await Vendor.findOneAndUpdate({ product: el._id }, { $set: { price_wholesale: price } })
 					broadcastMessage({ status: 'price', before: productMap.price, after: price, id: el.id })
 				}).catch(error => console.log(error))
