@@ -45,10 +45,6 @@ const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
-
-	console.log(brandsList)
-	console.log(modelsList)
-	console.log(productsList)
 }
 
 start()
@@ -87,7 +83,6 @@ const addProduct = async (el) => {
 		await getImg(modelsList.get(model), image_url)
 		// проверка на отсутствие товара
 		if (!productsList.has(id)) {
-			console.log(123123)
 			return await Product.create({
 				brand: brandsList.get(mark),
 				model: modelsList.get(model),
