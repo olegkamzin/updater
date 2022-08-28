@@ -17,7 +17,6 @@ const tyreBrands = async () => {
 		brandsList.set(element.name, element.id)
 	}
 }
-
 const tyreModels = async () => {
 	const modelsLog = fs.readFileSync('log.csv').toString().split('\r\n')
 	const models = fs.readFileSync('models.csv').toString().split('\r\n')
@@ -30,7 +29,8 @@ const tyreModels = async () => {
 	})
 	await modelsLog.forEach(el => {
 		const model = el.split(',')
-		modelsList.set(model[0], true)
+		if (model.length === 1) return null
+		modelsList.set(model[1], true)
 	})
 }
 
