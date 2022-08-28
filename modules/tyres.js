@@ -52,7 +52,6 @@ const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
-	console.log(modelsList)
 }
 
 start()
