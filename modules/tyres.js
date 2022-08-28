@@ -1,9 +1,8 @@
 import slug from 'slugify'
-import Model from '../models/model.js'
+import fs from 'fs'
 import Brand from '../models/brand.js'
 import Product from '../models/product.js'
 import Vendor from '../models/vendor.js'
-import { addModel, getImg } from './image.js'
 import broadcastMessage from '../service/websocket.js'
 
 const brandsList = new Map()
@@ -20,11 +19,19 @@ const tyreBrands = async () => {
 }
 
 const tyreModels = async () => {
-	// формируем мапу с моделями, чтобы не дрочить БД
-	const modelFind = await Model.find()
-	for (const element of Array.from(modelFind)) {
-		modelsList.set(element.name, element.id)
-	}
+	const modelsLog = fs.readFileSync('log.csv').toString().split('\r\n')
+	const models = fs.readFileSync('models.csv').toString().split('\r\n')
+	await models.forEach(el => {
+		const model = el.split(',')
+		if (model[1] === 'null') {
+			return modelsList.set(model[0], true)
+		}
+		modelsList.set(model[0], model[1])
+	})
+	await modelsLog.forEach(el => {
+		const model = el.split(',')
+		modelsList.set(model[0], true)
+	})
 }
 
 const tyreProducts = async () => {
@@ -45,42 +52,40 @@ const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
+	console.log(modelsList)
 }
 
 start()
 
 const addProduct = async (el) => {
-	let { id, articul, mark, model, tread_width, profile_height, diameter, season, is_studded, runflat, eu_fuel_efficiency, eu_noise_level, eu_grip_on_road, weight, other, load_index, speed_index, price, count_local, image_url } = el
+	let { id, articul, mark, model, tread_width, profile_height, diameter, season, is_studded, runflat, eu_fuel_efficiency, eu_noise_level, eu_grip_on_road, weight, other, load_index, speed_index, price, count_local } = el
+	model = model.trim()
 	let noise = ''
-	model = model.replace(/[()-]/g, ' ').replace(/\s+/g, ' ').trim()
 	price = Number(price)
-	const modelSlug = slug(model, { lower: true })
 	const retail_price = Math.ceil(price * 1.18)
+	checkProducts.set(id, count_local)
 	if (eu_noise_level >= 75) noise = '3'
 	else if (eu_noise_level >= 61 && eu_noise_level <= 74) noise = '2'
 	else if (eu_noise_level <= 60) noise = '1'
 	else if (eu_noise_level === 0) noise = '0'
 
-	checkProducts.set(id, count_local)
-
 	// проверка наличия бренда в БД, если нет, добавляем
 	if (!brandsList.has(mark)) {
 		brandsList.set(mark, false)
-		await Brand.create({ name: mark, slug: slug(mark, { lower: true }) }).then(brandRes => brandsList.set(brandRes.name, brandRes.id))
+		console.log(mark)
+		await Brand.create({ name: mark, slug: slug(mark, { lower: true }) })
+			.then(brandRes => brandsList.set(brandRes.name, brandRes.id))
+			.catch(() => null)
 	}
+
 	// проверка наличия модели в БД, если нет, добавляем
-	if (!modelsList.has(model) && brandsList.get(mark) && model) {
-		modelsList.set(model, false)
-		await Model.create({ name: model, brand: brandsList.get(mark), slug: modelSlug }).then(async modelRes => {
-			modelsList.set(modelRes.name, modelRes.id)
-			await addModel(modelRes.id) // обновление map с наличием изображений
-		})
+	if (!modelsList.get(model) && brandsList.get(mark) && model) {
+		modelsList.set(model, true)
+		fs.appendFileSync('log.csv', `${mark},${model},${articul}\r\n`)
 	}
 
 	// добавляем товары в БД
-	if (brandsList.get(mark) && modelsList.get(model) && model && articul) {
-		// сохранение и добавление изображения
-		await getImg(modelsList.get(model), image_url)
+	if (brandsList.get(mark) && model && modelsList.get(model) && modelsList.get(model) !== true && articul) {
 		// проверка на отсутствие товара
 		if (!productsList.has(id)) {
 			return await Product.create({
