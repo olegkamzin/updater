@@ -121,8 +121,8 @@ const addProduct = async (el) => {
 				}).then(() => {
 					broadcastMessage({ status: 'add', id: productRes._id })
 					productsList.set(id, { product: productRes._id, quantity: productRes.quantity, price })
-				}).catch(error => console.log(error))
-			}).catch(error => console.log(error))
+				}).catch(() => null)
+			}).catch(() => null)
 		}
 		// обновление данных в БД и map
 		if (productsList.has(id)) {
@@ -132,13 +132,13 @@ const addProduct = async (el) => {
 					productsList.set(id, { product: productMap.product, quantity: el.quantity, price: Number(price) })
 					await Vendor.findOneAndUpdate({ product: el._id }, { $set: { price_wholesale: price } })
 					broadcastMessage({ status: 'price', before: productMap.price, after: price, id: el.id })
-				}).catch(error => console.log(error))
+				}).catch(() => null)
 			}
 			if (productMap.quantity !== Number(count_local)) {
 				await Product.findByIdAndUpdate(productMap.product, { quantity: Number(count_local) }, { new: true }).then(el => {
 					productsList.set(id, { product: productMap.product, quantity: el.quantity, price: Number(retail_price) })
 					broadcastMessage({ status: 'quantity', before: productMap.quantity, after: Number(count_local), id: el.id })
-				}).catch(error => console.log(error))
+				}).catch(() => null)
 			}
 		}
 	}
@@ -150,8 +150,9 @@ const delProduct = async () => {
 			await Product.findByIdAndUpdate(value.product, { $set: { quantity: 0 } }, { new: true })
 				.then(res => {
 					broadcastMessage({ status: 'delete', id: res.id })
+					return productsList.set(key, { product: value.product, quantity: 0, price: value.price })
 				})
-			return productsList.set(key, { product: value.product, quantity: 0, price: value.price })
+				.catch(() => null)
 		}
 	}
 	checkProducts.clear()

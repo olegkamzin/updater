@@ -1,6 +1,7 @@
 import dotenv from 'dotenv'
 import auth from './service/auth.js'
 import getTyres from './service/tyres.js'
+import fs from 'fs'
 import { addProduct, delProduct } from './modules/tyres.js'
 dotenv.config()
 
@@ -10,14 +11,15 @@ let page = 0
 let token = ''
 
 // const bot = new TelegramBot(process.env.TELEGRAM_TOKEN, { polling: true })
-const timer = ms => new Promise(res => setTimeout(res, ms))
+const timer = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const login = async () => {
 	auth().then(res => {
 		token = res.data.access_token
 	}).catch(error => {
 		// if (error.response.status === 429) return login()
-		console.log('❗️ НЕУЧТЕННАЯ ОШИБКА', error) // предусмотреть аварийную функцию
+		fs.appendFileSync('log.txt', `${error}\r\n===========================\r\n`)
+		console.log('❗️ НЕУЧТЕННАЯ ОШИБКА АВТОРИЗАЦИИ', error) // предусмотреть аварийную функцию
 		// bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
 	})
 }
@@ -31,6 +33,7 @@ const tyresUpdater = async () => {
 				if (res.data.length === 0) {
 					page = 0
 					return await delProduct()
+						.catch(error => fs.appendFileSync('log.txt', `${error}\r\n===========================\r\n`))
 				}
 				await tyreHandler(res.data)
 				page++
@@ -38,7 +41,7 @@ const tyresUpdater = async () => {
 			.catch(async error => {
 				if (error.response?.status === 429) return null
 				if (error.response?.status === 401) return login()
-				console.log('❗️ НЕУЧТЕННАЯ ОШИБКА', error) // предусмотреть аварийную функцию
+				fs.appendFileSync('log.txt', `${error}\r\n===========================\r\n`) // предусмотреть аварийную функцию
 				// bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
 				await timer(60000)
 			})
@@ -47,5 +50,7 @@ const tyresUpdater = async () => {
 }
 
 const tyreHandler = async (data) => {
-	Array.from(data).forEach(async el => await addProduct(el).catch(err => console.log(err)))
+	console.log(data)
+	await Array.from(data).forEach(async el => await addProduct(el)
+		.catch(error => fs.appendFileSync('log.txt', `${error}\r\n===========================\r\n`)))
 }
