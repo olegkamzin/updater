@@ -45,11 +45,12 @@ const tyresUpdater = async () => {
 				// bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
 				await timer(60000)
 			})
-		await timer(1100)
+		await timer(1200)
 	}
 }
 
 const tyreHandler = async (data) => {
+	console.log(data)
 	await Array.from(data).forEach(async el => await addProduct(el)
 		.catch(error => fs.appendFileSync('log.txt', `${error}\r\n===========================\r\n`)))
 }
