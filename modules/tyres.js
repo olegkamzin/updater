@@ -82,7 +82,7 @@ const addProduct = async (el) => {
 		modelsList.set(model, true)
 		fs.appendFileSync('log.csv', `${mark},${model},${articul}\r\n`)
 	}
-
+	console.log(modelsList)
 	// добавляем товары в БД
 	if (brandsList.get(mark) && model && modelsList.get(model) && modelsList.get(model) !== true && articul) {
 		// проверка на отсутствие товара
@@ -93,6 +93,7 @@ const addProduct = async (el) => {
 				category: process.env.CATEGORY,
 				quantity: Number(count_local),
 				price: Number(retail_price),
+				wholesale_price: Number(price),
 				weight: Number(weight),
 				params: {
 					width: Number(tread_width),

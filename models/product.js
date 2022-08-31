@@ -6,7 +6,9 @@ const schema = new db.Schema({
 	category: { type: db.Types.ObjectId, ref: 'categories', required: 'Необходимо указать категорию.' },
 	quantity: { type: Number, required: 'Необходимо указать количество.' },
 	price: { type: Number },
+	wholesale_price: { type: Number },
 	weight: { type: Number },
+	article: { type: String },
 	params: { type: Object, required: 'Параметры товара обязательный для заполнения' }
 })
 
