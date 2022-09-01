@@ -4,7 +4,7 @@ import { WebSocketServer } from 'ws'
 const wss = new WebSocketServer({ port: 3001 })
 
 wss.on('connection', ws => {
-	ws.send('CONNECTED')
+	ws.send(JSON.stringify({ status: 'ok' }))
 })
 
 const broadcastMessage = (msg) => {
