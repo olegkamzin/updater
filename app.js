@@ -19,7 +19,7 @@ const login = async () => {
 		token = res.data.access_token
 		broadcastMessage({ status: 'ok' })
 	}).catch(error => {
-		// if (error.response.status === 429) return login()
+		if (error.response.status === 429) return null
 		fs.appendFileSync('log.txt', `${new Date().toString()} ${error}\r\n===========================\r\n`)
 		broadcastMessage({ status: 'error' })
 		// bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
