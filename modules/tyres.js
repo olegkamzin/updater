@@ -119,7 +119,6 @@ const addProduct = async (el) => {
 		// обновление данных в БД и map
 		if (productsList.has(id)) {
 			const productMap = productsList.get(id)
-			await Product.findByIdAndUpdate(productMap.product, { article: articul })
 			if (productMap.price !== Number(price)) {
 				await Product.findByIdAndUpdate(productMap.product, { price: Number(retail_price), wholesale_price: Number(price) }, { new: true }).then(async res => {
 					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(price) })
