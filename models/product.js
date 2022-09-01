@@ -8,6 +8,7 @@ const schema = new db.Schema({
 	price: { type: Number },
 	wholesale_price: { type: Number },
 	weight: { type: Number },
+	article: { type: String },
 	params: { type: Object, required: 'Параметры товара обязательный для заполнения' }
 })
 

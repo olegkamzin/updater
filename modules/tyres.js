@@ -95,6 +95,7 @@ const addProduct = async (el) => {
 				price: Number(retail_price),
 				wholesale_price: Number(price),
 				weight: Number(weight),
+				article: articul,
 				params: {
 					width: Number(tread_width),
 					height: Number(profile_height),
