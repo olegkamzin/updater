@@ -39,19 +39,20 @@ const tyreProducts = async () => {
 	const productFind = await Vendor
 		.find()
 		.populate({ path: 'product', model: 'Product' })
-	for (const element of Array.from(productFind)) {
-		productsList.set(element.vendors.kolobox.id, {
-			product: element.product._id,
-			quantity: element.product.quantity,
-			price: element.vendors.kolobox.price
+	await productFind.forEach(el => {
+		productsList.set(el.kolobox, {
+			product: el.product._id,
+			quantity: el.product.quantity,
+			price: el.product.wholesale_price
 		})
-	}
+	})
 }
 
 const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
+	console.log(productsList)
 }
 
 start()
@@ -82,7 +83,6 @@ const addProduct = async (el) => {
 		modelsList.set(model, true)
 		fs.appendFileSync('log.csv', `${mark},${model},${articul}\r\n`)
 	}
-	console.log(modelsList)
 	// добавляем товары в БД
 	if (brandsList.get(mark) && model && modelsList.get(model) && modelsList.get(model) !== true && articul) {
 		// проверка на отсутствие товара
@@ -109,19 +109,10 @@ const addProduct = async (el) => {
 					other,
 					season: season.toString()
 				}
-			}).then(async productRes => {
-				await Vendor.create({
-					product: productRes._id,
-					vendors: {
-						kolobox: {
-							articul,
-							id,
-							price: Number(price)
-						}
-					}
-				}).then(() => {
-					broadcastMessage({ status: 'add', id: productRes._id })
-					productsList.set(id, { product: productRes._id, quantity: productRes.quantity, price })
+			}).then(async res => {
+				await Vendor.create({ product: res._id, kolobox: id }).then(() => {
+					broadcastMessage({ status: 'ok', update: 'add', id: res._id })
+					productsList.set(id, { product: res._id, quantity: res.quantity, price: res.wholesale_price })
 				}).catch(() => null)
 			}).catch(() => null)
 		}
@@ -129,16 +120,15 @@ const addProduct = async (el) => {
 		if (productsList.has(id)) {
 			const productMap = productsList.get(id)
 			if (productMap.price !== Number(price)) {
-				await Product.findByIdAndUpdate(productMap.product, { price: Number(retail_price) }, { new: true }).then(async el => {
-					productsList.set(id, { product: productMap.product, quantity: el.quantity, price: Number(price) })
-					await Vendor.findOneAndUpdate({ product: el._id }, { $set: { price_wholesale: price } })
-					broadcastMessage({ status: 'price', before: productMap.price, after: price, id: el.id })
+				await Product.findByIdAndUpdate(productMap.product, { price: Number(retail_price), wholesale_price: Number(price) }, { new: true }).then(async res => {
+					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(price) })
+					broadcastMessage({ status: 'ok', update: 'price', before: productMap.price, after: price, id: res.id })
 				}).catch(() => null)
 			}
 			if (productMap.quantity !== Number(count_local)) {
-				await Product.findByIdAndUpdate(productMap.product, { quantity: Number(count_local) }, { new: true }).then(el => {
-					productsList.set(id, { product: productMap.product, quantity: el.quantity, price: Number(retail_price) })
-					broadcastMessage({ status: 'quantity', before: productMap.quantity, after: Number(count_local), id: el.id })
+				await Product.findByIdAndUpdate(productMap.product, { quantity: Number(count_local) }, { new: true }).then(res => {
+					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(retail_price) })
+					broadcastMessage({ status: 'ok', update: 'quantity', before: productMap.quantity, after: Number(count_local), id: res.id })
 				}).catch(() => null)
 			}
 		}

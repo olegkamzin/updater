@@ -55,7 +55,6 @@ const tyresUpdater = async () => {
 tyresUpdater()
 
 const tyreHandler = async (data) => {
-	console.log(data)
 	await Array.from(data).forEach(async el => await addProduct(el)
 		.catch(error => fs.appendFileSync('log.txt', `${new Date().toString()} ${error}\r\n===========================\r\n`)))
 }
