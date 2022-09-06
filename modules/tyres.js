@@ -127,7 +127,7 @@ const addProduct = async (el) => {
 			}
 			if (productMap.quantity !== Number(count_local)) {
 				await Product.findByIdAndUpdate(productMap.product, { quantity: Number(count_local) }, { new: true }).then(res => {
-					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(retail_price) })
+					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(price) })
 					broadcastMessage({ status: 'ok', update: 'quantity', before: productMap.quantity, after: Number(count_local), id: res.id })
 				}).catch(() => null)
 			}
