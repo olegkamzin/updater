@@ -69,13 +69,12 @@ const addProduct = async (el) => {
 	else if (eu_noise_level === 0) noise = '0'
 
 	// проверка наличия бренда в БД, если нет, добавляем
-	if (!brandsList.has(mark)) {
-		brandsList.set(mark, false)
-		console.log(mark)
-		await Brand.create({ name: mark, slug: slug(mark, { lower: true }) })
-			.then(brandRes => brandsList.set(brandRes.name, brandRes.id))
-			.catch(() => null)
-	}
+	// if (!brandsList.has(mark)) {
+	// 	brandsList.set(mark, false)
+	// 	await Brand.create({ name: mark, slug: slug(mark, { lower: true }) })
+	// 		.then(brandRes => brandsList.set(brandRes.name, brandRes.id))
+	// 		.catch(() => null)
+	// }
 
 	// проверка наличия модели в БД, если нет, добавляем
 	if (!modelsList.get(model) && brandsList.get(mark) && model) {
@@ -83,7 +82,7 @@ const addProduct = async (el) => {
 		fs.appendFileSync('log.csv', `${mark},${model},${articul}\r\n`)
 	}
 	// добавляем товары в БД
-	if (brandsList.get(mark) && model && modelsList.get(model) && modelsList.get(model) !== true && articul) {
+	if (brandsList.get(mark) && model && modelsList.get(model) && modelsList.get(model) !== true && articul && !articul.includes('_')) {
 		// проверка на отсутствие товара
 		if (!productsList.has(id)) {
 			return await Product.create({

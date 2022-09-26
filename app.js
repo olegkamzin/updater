@@ -48,7 +48,7 @@ const tyresUpdater = async () => {
 				// bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
 				await timer(60000)
 			})
-		await timer(1100)
+		await timer(1000)
 	}
 }
 
