@@ -37,7 +37,7 @@ const tyresUpdater = async () => {
 					return await delProduct()
 						.catch(error => fs.appendFileSync('log.txt', `${new Date().toString()} ${error}\r\n===========================\r\n`))
 				}
-				// await tyreHandler(res.data)
+				await tyreHandler(res.data)
 				page++
 			})
 			.catch(async error => {

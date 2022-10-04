@@ -1,4 +1,3 @@
-import slug from 'slugify'
 import fs from 'fs'
 import Brand from '../models/brand.js'
 import Product from '../models/product.js'
@@ -40,14 +39,11 @@ const tyreProducts = async () => {
 		.find()
 		.populate({ path: 'product', model: 'Product' })
 	await productFind.forEach(async el => {
-		if (!el.product?._id) {
-			await Vendor.deleteOne({ _id: el._id }).then(res => console.log(res))
-		}
-		// productsList.set(el.kolobox, {
-		// 	product: el.product._id,
-		// 	quantity: el.product.quantity,
-		// 	price: el.product.wholesale_price
-		// })
+		productsList.set(el.kolobox, {
+			product: el.product._id,
+			quantity: el.product.quantity,
+			price: el.product.wholesale_price
+		})
 	})
 }
 
