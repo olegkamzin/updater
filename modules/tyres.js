@@ -41,8 +41,7 @@ const tyreProducts = async () => {
 		.populate({ path: 'product', model: 'Product' })
 	await productFind.forEach(async el => {
 		if (!el.product?._id) {
-			console.log(el)
-			// await Vendor.deleteOne({ _id: el._id })
+			await Vendor.deleteOne({ _id: el._id }).then(res => console.log(res))
 		}
 		// productsList.set(el.kolobox, {
 		// 	product: el.product._id,
