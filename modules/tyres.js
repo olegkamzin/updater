@@ -40,6 +40,9 @@ const tyreProducts = async () => {
 		.find()
 		.populate({ path: 'product', model: 'Product' })
 	await productFind.forEach(el => {
+		if (!el.product._id) {
+			console.log(el)
+		}
 		productsList.set(el.kolobox, {
 			product: el.product._id,
 			quantity: el.product.quantity,
