@@ -39,15 +39,16 @@ const tyreProducts = async () => {
 	const productFind = await Vendor
 		.find()
 		.populate({ path: 'product', model: 'Product' })
-	await productFind.forEach(el => {
+	await productFind.forEach(async el => {
 		if (!el.product?._id) {
 			console.log(el)
+			// await Vendor.deleteOne({ _id: el._id })
 		}
-		productsList.set(el.kolobox, {
-			product: el.product._id,
-			quantity: el.product.quantity,
-			price: el.product.wholesale_price
-		})
+		// productsList.set(el.kolobox, {
+		// 	product: el.product._id,
+		// 	quantity: el.product.quantity,
+		// 	price: el.product.wholesale_price
+		// })
 	})
 }
 
