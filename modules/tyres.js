@@ -2,7 +2,7 @@ import fs from 'fs'
 import Brand from '../models/brand.js'
 import Product from '../models/product.js'
 import Vendor from '../models/vendor.js'
-import broadcastMessage from '../service/websocket.js'
+// import broadcastMessage from '../service/websocket.js'
 
 const brandsList = new Map()
 const modelsList = new Map()
@@ -109,7 +109,7 @@ const addProduct = async (el) => {
 				}
 			}).then(async res => {
 				await Vendor.create({ product: res._id, kolobox: id }).then(() => {
-					broadcastMessage({ status: 'ok', update: 'add', id: res._id })
+					// broadcastMessage({ status: 'ok', update: 'add', id: res._id })
 					productsList.set(id, { product: res._id, quantity: res.quantity, price: res.wholesale_price })
 				}).catch(() => null)
 			}).catch(() => null)
@@ -120,13 +120,13 @@ const addProduct = async (el) => {
 			if (productMap.price !== Number(price)) {
 				await Product.findByIdAndUpdate(productMap.product, { price: Number(retail_price), wholesale_price: Number(price) }, { new: true }).then(async res => {
 					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(price) })
-					broadcastMessage({ status: 'ok', update: 'price', before: productMap.price, after: price, id: res.id })
+					// broadcastMessage({ status: 'ok', update: 'price', before: productMap.price, after: price, id: res.id })
 				}).catch(() => null)
 			}
 			if (productMap.quantity !== Number(count_local)) {
 				await Product.findByIdAndUpdate(productMap.product, { quantity: Number(count_local) }, { new: true }).then(res => {
 					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(price) })
-					broadcastMessage({ status: 'ok', update: 'quantity', before: productMap.quantity, after: Number(count_local), id: res.id })
+					// broadcastMessage({ status: 'ok', update: 'quantity', before: productMap.quantity, after: Number(count_local), id: res.id })
 				}).catch(() => null)
 			}
 		}
@@ -138,7 +138,7 @@ const delProduct = async () => {
 		if (!checkProducts.has(key) && value.quantity !== 0) {
 			await Product.findByIdAndUpdate(value.product, { $set: { quantity: 0 } }, { new: true })
 				.then(res => {
-					broadcastMessage({ status: 'delete', id: res.id })
+					// broadcastMessage({ status: 'delete', id: res.id })
 					return productsList.set(key, { product: value.product, quantity: 0, price: value.price })
 				})
 				.catch(() => null)
