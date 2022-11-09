@@ -16,7 +16,6 @@ const timer = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 const login = async () => {
 	await auth().then(res => {
-		console.log(res)
 		token = res.data.access_token
 		broadcastMessage({ status: 'ok' })
 	}).catch(error => {
