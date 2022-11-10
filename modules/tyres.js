@@ -35,16 +35,19 @@ const tyreModels = async () => {
 
 const tyreProducts = async () => {
 	// формируем мапу с товарами, чтобы не дрочить БД каждый раз
-	const productFind = await Vendor
+	await Vendor
 		.find()
 		.populate({ path: 'product', model: 'Product' })
-	await productFind.forEach(async el => {
-		productsList.set(el.kolobox, {
-			product: el.product._id,
-			quantity: el.product.quantity,
-			price: el.product.wholesale_price
+		.then(async res => {
+			await res.forEach(el => {
+				productsList.set(el.kolobox, {
+					product: el.product._id,
+					quantity: el.product.quantity,
+					price: el.product.wholesale_price
+				})
+			})
 		})
-	})
+	
 }
 
 const start = async () => {
