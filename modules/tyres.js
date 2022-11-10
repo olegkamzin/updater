@@ -56,8 +56,6 @@ const start = async () => {
 	await tyreProducts()
 }
 
-start()
-
 const addProduct = async (el) => {
 	let { id, articul, mark, model, tread_width, profile_height, diameter, season, is_studded, runflat, eu_fuel_efficiency, eu_noise_level, eu_grip_on_road, weight, other, load_index, speed_index, price, count_local } = el
 	model = model.trim()
@@ -150,4 +148,4 @@ const delProduct = async () => {
 	checkProducts.clear()
 }
 
-export { delProduct, addProduct }
+export { delProduct, addProduct, start }

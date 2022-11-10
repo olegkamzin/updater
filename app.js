@@ -2,7 +2,7 @@ import dotenv from 'dotenv'
 import auth from './service/auth.js'
 import getTyres from './service/tyres.js'
 import fs from 'fs'
-import { addProduct, delProduct } from './modules/tyres.js'
+import { addProduct, delProduct, start } from './modules/tyres.js'
 import broadcastMessage from './service/websocket.js'
 dotenv.config()
 
@@ -27,6 +27,7 @@ const login = async () => {
 }
 
 const tyresUpdater = async () => {
+	await start()
 	await login()
 	while (true) {
 		await getTyres(token, page)
