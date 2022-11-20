@@ -7,7 +7,7 @@ import Vendor from '../models/vendor.js'
 const brandsList = new Map()
 const modelsList = new Map()
 const productsList = new Map()
-const pricesList = new Map()
+// const pricesList = new Map()
 const checkProducts = new Map()
 
 const tyreBrands = async () => {
@@ -17,14 +17,15 @@ const tyreBrands = async () => {
 		brandsList.set(element.name, element.id)
 	}
 }
-const tyresPrice = async () => {
-	const prices = fs.readFileSync('prices.csv').toString().split('\r\n')
-	await prices.forEach(el => {
-		const price = el.split(',')
-		// if (model.length === 1) return null
-		pricesList.set(price[0], price[1])
-	})
-}
+
+// const tyresPrice = async () => {
+// 	const prices = fs.readFileSync('prices.csv').toString().split('\r\n')
+// 	await prices.forEach(el => {
+// 		const price = el.split(',')
+// 		// if (model.length === 1) return null
+// 		pricesList.set(price[0], price[1])
+// 	})
+// }
 
 const tyreModels = async () => {
 	const modelsLog = fs.readFileSync('log.csv').toString().split('\r\n')
@@ -53,7 +54,7 @@ const tyreProducts = async () => {
 				productsList.set(el.kolobox, {
 					product: el.product._id,
 					quantity: el.product.quantity,
-					price: el.product.wholesale_price
+					price: el.product.price
 				})
 			})
 		})
@@ -64,8 +65,8 @@ const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
-	await tyresPrice()
-	console.log(pricesList)
+	// await tyresPrice()
+	// console.log(pricesList)
 }
 
 const addProduct = async (el) => {
@@ -73,7 +74,7 @@ const addProduct = async (el) => {
 	model = model.trim()
 	let noise = ''
 	price = Number(price)
-	const retail_price = pricesList.has(articul) ? pricesList.get(articul) : Math.ceil(price * 1.21)
+	price = mark === 'Nokian Tyres' ? price : Math.ceil(price - price * 0.01)
 	checkProducts.set(id, count_local)
 	if (eu_noise_level >= 75) noise = '3'
 	else if (eu_noise_level >= 61 && eu_noise_level <= 74) noise = '2'
@@ -102,8 +103,8 @@ const addProduct = async (el) => {
 				model: modelsList.get(model),
 				category: process.env.CATEGORY,
 				quantity: Number(count_local),
-				price: Number(retail_price),
-				wholesale_price: Number(price),
+				price: Number(price),
+				// wholesale_price: Number(price),
 				weight: Number(weight),
 				article: articul,
 				params: {
@@ -123,7 +124,7 @@ const addProduct = async (el) => {
 			}).then(async res => {
 				await Vendor.create({ product: res._id, kolobox: id }).then(() => {
 					// broadcastMessage({ status: 'ok', update: 'add', id: res._id })
-					productsList.set(id, { product: res._id, quantity: res.quantity, price: res.wholesale_price })
+					productsList.set(id, { product: res._id, quantity: res.quantity, price: res.price })
 				}).catch(() => null)
 			}).catch(() => null)
 		}
@@ -131,7 +132,7 @@ const addProduct = async (el) => {
 		if (productsList.has(id)) {
 			const productMap = productsList.get(id)
 			if (productMap.price !== Number(price)) {
-				await Product.findByIdAndUpdate(productMap.product, { price: Number(retail_price), wholesale_price: Number(price) }, { new: true }).then(async res => {
+				await Product.findByIdAndUpdate(productMap.product, { price: Number(price) }, { new: true }).then(async res => {
 					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(price) })
 					// broadcastMessage({ status: 'ok', update: 'price', before: productMap.price, after: price, id: res.id })
 				}).catch(() => null)
