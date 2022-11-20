@@ -7,6 +7,7 @@ import Vendor from '../models/vendor.js'
 const brandsList = new Map()
 const modelsList = new Map()
 const productsList = new Map()
+const pricesList = new Map()
 const checkProducts = new Map()
 
 const tyreBrands = async () => {
@@ -16,6 +17,15 @@ const tyreBrands = async () => {
 		brandsList.set(element.name, element.id)
 	}
 }
+const tyresPrice = async () => {
+	const prices = fs.readFileSync('prices.csv').toString().split('\r\n')
+	await prices.forEach(el => {
+		const price = el.split(',')
+		// if (model.length === 1) return null
+		pricesList.set(price[0], price[1])
+	})
+}
+
 const tyreModels = async () => {
 	const modelsLog = fs.readFileSync('log.csv').toString().split('\r\n')
 	const models = fs.readFileSync('models.csv').toString().split('\r\n')
@@ -54,7 +64,8 @@ const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
-	console.log(productsList)
+	await tyresPrice()
+	console.log(pricesList)
 }
 
 const addProduct = async (el) => {
@@ -62,7 +73,7 @@ const addProduct = async (el) => {
 	model = model.trim()
 	let noise = ''
 	price = Number(price)
-	const retail_price = Math.ceil(price * 1.20)
+	const retail_price = pricesList.has(articul) ? pricesList.get(articul) : Math.ceil(price * 1.21)
 	checkProducts.set(id, count_local)
 	if (eu_noise_level >= 75) noise = '3'
 	else if (eu_noise_level >= 61 && eu_noise_level <= 74) noise = '2'
