@@ -54,6 +54,7 @@ const start = async () => {
 	await tyreBrands()
 	await tyreModels()
 	await tyreProducts()
+	console.log(productsList)
 }
 
 const addProduct = async (el) => {
@@ -61,7 +62,7 @@ const addProduct = async (el) => {
 	model = model.trim()
 	let noise = ''
 	price = Number(price)
-	const retail_price = Math.ceil(price * 1.18)
+	const retail_price = Math.ceil(price * 1.20)
 	checkProducts.set(id, count_local)
 	if (eu_noise_level >= 75) noise = '3'
 	else if (eu_noise_level >= 61 && eu_noise_level <= 74) noise = '2'
