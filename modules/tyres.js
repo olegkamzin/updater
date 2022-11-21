@@ -54,7 +54,7 @@ const tyreProducts = async () => {
 				productsList.set(el.kolobox, {
 					product: el.product._id,
 					quantity: el.product.quantity,
-					price: el.product.price
+					price: el.product.wholesale_price
 				})
 			})
 		})
@@ -74,7 +74,6 @@ const addProduct = async (el) => {
 	model = model.trim()
 	let noise = ''
 	price = Number(price)
-	price = mark === 'Nokian Tyres' ? price : Math.ceil(price - price * 0.01)
 	checkProducts.set(id, count_local)
 	if (eu_noise_level >= 75) noise = '3'
 	else if (eu_noise_level >= 61 && eu_noise_level <= 74) noise = '2'
@@ -103,8 +102,8 @@ const addProduct = async (el) => {
 				model: modelsList.get(model),
 				category: process.env.CATEGORY,
 				quantity: Number(count_local),
-				price: Number(price),
-				// wholesale_price: Number(price),
+				price: price * 1.23,
+				wholesale_price: price,
 				weight: Number(weight),
 				article: articul,
 				params: {
@@ -131,15 +130,15 @@ const addProduct = async (el) => {
 		// обновление данных в БД и map
 		if (productsList.has(id)) {
 			const productMap = productsList.get(id)
-			if (productMap.price !== Number(price)) {
-				await Product.findByIdAndUpdate(productMap.product, { price: Number(price) }, { new: true }).then(async res => {
-					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(price) })
+			if (productMap.price !== price) {
+				await Product.findByIdAndUpdate(productMap.product, { price: price }, { new: true }).then(async res => {
+					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: price })
 					// broadcastMessage({ status: 'ok', update: 'price', before: productMap.price, after: price, id: res.id })
 				}).catch(() => null)
 			}
 			if (productMap.quantity !== Number(count_local)) {
 				await Product.findByIdAndUpdate(productMap.product, { quantity: Number(count_local) }, { new: true }).then(res => {
-					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: Number(price) })
+					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: productMap.price })
 					// broadcastMessage({ status: 'ok', update: 'quantity', before: productMap.quantity, after: Number(count_local), id: res.id })
 				}).catch(() => null)
 			}

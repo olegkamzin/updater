@@ -3,7 +3,6 @@ import auth from './service/auth.js'
 import getTyres from './service/tyres.js'
 import fs from 'fs'
 import { addProduct, delProduct, start } from './modules/tyres.js'
-import broadcastMessage from './service/websocket.js'
 dotenv.config()
 
 // import TelegramBot from 'node-telegram-bot-api'
@@ -17,11 +16,9 @@ const timer = ms => new Promise(resolve => setTimeout(resolve, ms))
 const login = async () => {
 	await auth().then(res => {
 		token = res.data.access_token
-		broadcastMessage({ status: 'ok' })
 	}).catch(error => {
 		if (error.response.status === 429) return null
 		fs.appendFileSync('log.txt', `${new Date().toString()} ${error}\r\n===========================\r\n`)
-		broadcastMessage({ status: 'error' })
 		// bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
 	})
 }
@@ -32,7 +29,6 @@ const tyresUpdater = async () => {
 	while (true) {
 		await getTyres(token, page)
 			.then(async res => {
-				broadcastMessage({ status: 'ok' })
 				if (res.data.length === 0) {
 					page = 0
 					return await delProduct()
@@ -44,7 +40,6 @@ const tyresUpdater = async () => {
 			.catch(async error => {
 				if (error.response?.status === 429) return null
 				if (error.response?.status === 401) return await login()
-				broadcastMessage({ status: 'error' })
 				fs.appendFileSync('log.txt', `${new Date().toString()} ${error}\r\n===========================\r\n`) // предусмотреть аварийную функцию
 				// bot.sendMessage(process.env.TELEGRAM_ID, `❗️ НЕУЧТЕННАЯ ОШИБКА ${error}`)
 				await timer(60000)
