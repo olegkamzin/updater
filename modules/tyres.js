@@ -131,7 +131,7 @@ const addProduct = async (el) => {
 		if (productsList.has(id)) {
 			const productMap = productsList.get(id)
 			if (productMap.price !== price) {
-				await Product.findByIdAndUpdate(productMap.product, { price: price }, { new: true }).then(async res => {
+				await Product.findByIdAndUpdate(productMap.product, { wholesale_price: price }, { new: true }).then(async res => {
 					productsList.set(id, { product: productMap.product, quantity: res.quantity, price: price })
 					// broadcastMessage({ status: 'ok', update: 'price', before: productMap.price, after: price, id: res.id })
 				}).catch(() => null)
