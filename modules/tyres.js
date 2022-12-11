@@ -102,7 +102,7 @@ const addProduct = async (el) => {
 				model: modelsList.get(model),
 				category: process.env.CATEGORY,
 				quantity: Number(count_local),
-				price: price * 1.23,
+				price: Math.ceil(price * 1.23),
 				wholesale_price: price,
 				weight: Number(weight),
 				article: articul.trim(),
